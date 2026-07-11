@@ -280,13 +280,20 @@ Tests:       38 passed, 38 total
 
 ## Screenshots
 
-_Add screenshots of your deployed application here before submission:_
+### Login Page
+![Login page](docs/screenshots/login.png)
 
-1. Login / Register page
-2. Vehicle dashboard
-3. Search results
-4. Vehicle details with purchase
-5. Admin dashboard
+### Register Page
+![Register page](docs/screenshots/register.png)
+
+### Vehicle Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Search Page
+![Search](docs/screenshots/search.png)
+
+### Admin Dashboard
+![Admin dashboard](docs/screenshots/admin.png)
 
 ---
 
