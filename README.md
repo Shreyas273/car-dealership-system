@@ -2,6 +2,10 @@
 
 A full-stack car dealership inventory management application built with the MERN stack. Users can browse, search, and purchase vehicles. Admins can manage inventory with full CRUD operations and restocking.
 
+## Repository
+
+**GitHub:** [github.com/Shreyas273/car-dealership-system](https://github.com/Shreyas273/car-dealership-system)
+
 ## Live Demo
 
 | Service | Platform | URL |
