@@ -1,12 +1,17 @@
 ﻿import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
+import { env } from './config/env';
 import { errorMiddleware } from './middleware/error.middleware';
 import authRoutes from './routes/auth.routes';
 import vehicleRoutes from './routes/vehicle.routes';
 
 const app: Application = express();
 
-app.use(cors());
+const corsOptions = env.frontendUrl
+  ? { origin: env.frontendUrl, credentials: true }
+  : undefined;
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
