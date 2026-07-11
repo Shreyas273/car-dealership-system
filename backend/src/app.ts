@@ -7,11 +7,16 @@ import vehicleRoutes from './routes/vehicle.routes';
 
 const app: Application = express();
 
-const corsOptions = env.frontendUrl
-  ? { origin: env.frontendUrl, credentials: true }
-  : undefined;
+const allowedOrigins = env.frontendUrl
+  ? env.frontendUrl.split(',').map((origin) => origin.trim())
+  : ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
