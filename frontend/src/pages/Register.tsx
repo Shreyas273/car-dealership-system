@@ -3,6 +3,8 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 
+const NAME_PATTERN = /^[A-Za-z\s'-]+$/;
+
 export const Register = () => {
   const { register, isAuthenticated } = useAuth();
   const { showToast } = useToast();
@@ -18,6 +20,12 @@ export const Register = () => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (!NAME_PATTERN.test(name.trim())) {
+      showToast('Name must contain letters only.', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -49,7 +57,9 @@ export const Register = () => {
               type="text"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              pattern="[A-Za-z\s'-]+"
+              title="Name must contain letters only"
+              onChange={(e) => setName(e.target.value.replace(/\d/g, ''))}
               className="w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-white focus:border-emerald-500 focus:outline-none"
             />
           </div>

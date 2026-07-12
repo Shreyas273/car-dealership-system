@@ -86,7 +86,12 @@ export const Search = () => {
         </p>
       </div>
 
-      <SearchBar onSearch={handleSearch} onReset={handleReset} isLoading={isLoading} />
+      <SearchBar
+        onSearch={handleSearch}
+        onReset={handleReset}
+        onValidationError={(message) => showToast(message, 'error')}
+        isLoading={isLoading}
+      />
 
       {isLoading ? (
         <Loader label="Searching vehicles..." />

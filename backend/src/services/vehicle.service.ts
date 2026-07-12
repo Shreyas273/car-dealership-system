@@ -8,6 +8,8 @@ import {
   VehicleSearchQuery,
 } from '../types/vehicle.types';
 
+const TEXT_PATTERN = /^[A-Za-z\s'-]+$/;
+
 export class VehicleService {
   async createVehicle(input: VehicleInput): Promise<VehicleResponse> {
     this.validateVehicleInput(input);
@@ -48,12 +50,24 @@ export class VehicleService {
       throw new AppError(404, 'Vehicle not found');
     }
 
-    if (input.price !== undefined && input.price < 0) {
-      throw new AppError(400, 'Price cannot be negative');
+    if (input.price !== undefined) {
+      this.validateNumericField(input.price, 'Price');
     }
 
-    if (input.quantity !== undefined && input.quantity < 0) {
-      throw new AppError(400, 'Quantity cannot be negative');
+    if (input.quantity !== undefined) {
+      this.validateNumericField(input.quantity, 'Quantity');
+    }
+
+    if (input.make !== undefined) {
+      this.validateTextField(input.make, 'Make');
+    }
+
+    if (input.model !== undefined) {
+      this.validateTextField(input.model, 'Model');
+    }
+
+    if (input.category !== undefined) {
+      this.validateTextField(input.category, 'Category');
     }
 
     const updated = await vehicleRepository.update(id, input);
@@ -72,12 +86,23 @@ export class VehicleService {
   }
 
   async searchVehicles(query: VehicleSearchQuery): Promise<VehicleResponse[]> {
+    const minPrice =
+      query.minPrice !== undefined && query.minPrice !== ''
+        ? Number(query.minPrice)
+        : undefined;
+    const maxPrice =
+      query.maxPrice !== undefined && query.maxPrice !== ''
+        ? Number(query.maxPrice)
+        : undefined;
+
+    this.validateSearchPrices(minPrice, maxPrice);
+
     const vehicles = await vehicleRepository.search({
       make: query.make,
       model: query.model,
       category: query.category,
-      minPrice: query.minPrice !== undefined ? Number(query.minPrice) : undefined,
-      maxPrice: query.maxPrice !== undefined ? Number(query.maxPrice) : undefined,
+      minPrice,
+      maxPrice,
     });
 
     return vehicles.map((vehicle) => mapVehicleToResponse(vehicle));
@@ -97,12 +122,49 @@ export class VehicleService {
       );
     }
 
-    if (input.price < 0) {
-      throw new AppError(400, 'Price cannot be negative');
+    this.validateNumericField(input.price, 'Price');
+    this.validateNumericField(input.quantity, 'Quantity');
+
+    this.validateTextField(input.make, 'Make');
+    this.validateTextField(input.model, 'Model');
+    this.validateTextField(input.category, 'Category');
+  }
+
+  private validateTextField(value: string, fieldName: string): void {
+    if (!TEXT_PATTERN.test(value.trim())) {
+      throw new AppError(400, `${fieldName} must contain letters only`);
+    }
+  }
+
+  private validateNumericField(value: number, fieldName: string): void {
+    if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
+      throw new AppError(400, `${fieldName} must contain numbers only`);
     }
 
-    if (input.quantity < 0) {
-      throw new AppError(400, 'Quantity cannot be negative');
+    if (value < 0) {
+      throw new AppError(400, `${fieldName} cannot be negative`);
+    }
+
+    if (!Number.isInteger(value)) {
+      throw new AppError(400, `${fieldName} must be a whole number`);
+    }
+  }
+
+  private validateSearchPrices(minPrice?: number, maxPrice?: number): void {
+    if (minPrice !== undefined) {
+      this.validateNumericField(minPrice, 'Min price');
+    }
+
+    if (maxPrice !== undefined) {
+      this.validateNumericField(maxPrice, 'Max price');
+    }
+
+    if (
+      minPrice !== undefined &&
+      maxPrice !== undefined &&
+      minPrice > maxPrice
+    ) {
+      throw new AppError(400, 'Min price must be less than or equal to max price');
     }
   }
 }

@@ -2,7 +2,7 @@ import { IVehicleDocument, Vehicle } from '../models/vehicle.model';
 import {
   UpdateVehicleInput,
   VehicleInput,
-  VehicleSearchQuery,
+  ParsedVehicleSearchQuery,
 } from '../types/vehicle.types';
 
 type VehicleFilter = Record<string, unknown>;
@@ -34,7 +34,7 @@ export class VehicleRepository {
     return Vehicle.findByIdAndDelete(id);
   }
 
-  async search(query: VehicleSearchQuery): Promise<IVehicleDocument[]> {
+  async search(query: ParsedVehicleSearchQuery): Promise<IVehicleDocument[]> {
     const filter: VehicleFilter = {};
 
     if (query.make) {

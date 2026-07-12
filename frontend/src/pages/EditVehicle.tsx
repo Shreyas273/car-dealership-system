@@ -77,6 +77,7 @@ export const EditVehicle = () => {
         <VehicleForm
           initialData={vehicle}
           onSubmit={handleSubmit}
+          onValidationError={(message) => showToast(message, 'error')}
           submitLabel="Save Changes"
           isSubmitting={isSubmitting}
         />

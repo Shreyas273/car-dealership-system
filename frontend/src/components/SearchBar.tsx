@@ -4,6 +4,7 @@ import type { VehicleSearchParams } from '../types/vehicle';
 interface SearchBarProps {
   onSearch: (params: VehicleSearchParams) => void;
   onReset: () => void;
+  onValidationError?: (message: string) => void;
   isLoading?: boolean;
 }
 
@@ -15,15 +16,33 @@ const initialFilters: VehicleSearchParams = {
   maxPrice: '',
 };
 
-export const SearchBar = ({ onSearch, onReset, isLoading = false }: SearchBarProps) => {
+export const SearchBar = ({
+  onSearch,
+  onReset,
+  onValidationError,
+  isLoading = false,
+}: SearchBarProps) => {
   const [filters, setFilters] = useState<VehicleSearchParams>(initialFilters);
 
   const handleChange = (field: keyof VehicleSearchParams, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handlePriceChange = (field: 'minPrice' | 'maxPrice', value: string) => {
+    handleChange(field, value.replace(/\D/g, ''));
+  };
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+
+    const minPrice = filters.minPrice?.trim() ?? '';
+    const maxPrice = filters.maxPrice?.trim() ?? '';
+
+    if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+      onValidationError?.('Min price must be less than or equal to max price');
+      return;
+    }
+
     onSearch(filters);
   };
 
@@ -60,17 +79,23 @@ export const SearchBar = ({ onSearch, onReset, isLoading = false }: SearchBarPro
           className="rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
         />
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
           placeholder="Min Price"
+          title="Min price must contain numbers only"
           value={filters.minPrice}
-          onChange={(e) => handleChange('minPrice', e.target.value)}
+          onChange={(e) => handlePriceChange('minPrice', e.target.value)}
           className="rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
         />
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
           placeholder="Max Price"
+          title="Max price must contain numbers only"
           value={filters.maxPrice}
-          onChange={(e) => handleChange('maxPrice', e.target.value)}
+          onChange={(e) => handlePriceChange('maxPrice', e.target.value)}
           className="rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
         />
       </div>

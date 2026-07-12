@@ -25,6 +25,14 @@ export interface VehicleSearchQuery {
   make?: string;
   model?: string;
   category?: string;
+  minPrice?: string | number;
+  maxPrice?: string | number;
+}
+
+export interface ParsedVehicleSearchQuery {
+  make?: string;
+  model?: string;
+  category?: string;
   minPrice?: number;
   maxPrice?: number;
 }

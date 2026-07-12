@@ -6,6 +6,8 @@ import { IUserDocument } from '../models/user.model';
 import { userRepository } from '../repositories/user.repository';
 import { AuthResponse } from '../types/auth.types';
 
+const NAME_PATTERN = /^[A-Za-z\s'-]+$/;
+
 export class AuthService {
   async register(
     name: string,
@@ -14,6 +16,10 @@ export class AuthService {
   ): Promise<AuthResponse> {
     if (!name?.trim() || !email?.trim() || !password) {
       throw new AppError(400, 'Name, email, and password are required');
+    }
+
+    if (!NAME_PATTERN.test(name.trim())) {
+      throw new AppError(400, 'Name must contain letters only');
     }
 
     if (password.length < 6) {

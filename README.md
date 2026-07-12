@@ -40,6 +40,18 @@ A full-stack car dealership inventory management application built with the MERN
 - All user features
 - Add, edit, and delete vehicles
 - Restock inventory
+- Cancel out of the add-vehicle form without saving
+
+### Input Validation
+
+Client- and server-side validation keeps form data clean:
+
+| Field | Rule |
+|-------|------|
+| Registration name | Letters only (spaces, hyphens, apostrophes allowed) |
+| Make, model, category | Letters only |
+| Price, quantity | Whole numbers only (non-negative) |
+| Search min/max price | Whole numbers only; min cannot exceed max |
 
 ## Project Structure
 
@@ -318,13 +330,13 @@ npm run test:coverage
 
 ```
 Test Suites: 3 passed, 3 total
-Tests:       38 passed, 38 total
+Tests:       43 passed, 43 total
 ```
 
 | Suite | Tests | Coverage |
 |-------|-------|----------|
-| `auth.test.ts` | 13 | Register, login, JWT, authorization |
-| `vehicle.test.ts` | 17 | CRUD, search, admin access |
+| `auth.test.ts` | 14 | Register, login, JWT, name validation |
+| `vehicle.test.ts` | 21 | CRUD, search, admin access, field validation |
 | `inventory.test.ts` | 8 | Purchase, restock, stock validation |
 
 ### Coverage Summary
@@ -393,7 +405,7 @@ Tests:       38 passed, 38 total
 
 ### Reflection
 
-AI significantly accelerated boilerplate generation and test writing, letting me focus on architecture decisions and edge cases. The TDD approach worked well with AI — writing tests first gave clear targets for implementation. I manually verified all 38 tests pass, fixed TypeScript/Mongoose compatibility issues, and ensured the frontend correctly disables purchase when `quantity === 0`. AI is most effective when used as a pair-programming partner with human review, not as a substitute for understanding the code.
+AI significantly accelerated boilerplate generation and test writing, letting me focus on architecture decisions and edge cases. The TDD approach worked well with AI — writing tests first gave clear targets for implementation. I manually verified all 43 tests pass, fixed TypeScript/Mongoose compatibility issues, and ensured the frontend correctly disables purchase when `quantity === 0`. AI is most effective when used as a pair-programming partner with human review, not as a substitute for understanding the code.
 
 ### Co-author Commit Example
 

@@ -73,6 +73,37 @@ describe('Vehicle CRUD APIs', () => {
 
       expect(response.body.success).toBe(false);
     });
+
+    it('should reject make, model, or category containing numbers', async () => {
+      const response = await request(app)
+        .post('/api/vehicles')
+        .set(authHeader(adminToken))
+        .send({ ...validVehicle, model: 'Camry2024' })
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toMatch(/letters only/i);
+    });
+
+    it('should reject non-numeric price or quantity values', async () => {
+      const priceResponse = await request(app)
+        .post('/api/vehicles')
+        .set(authHeader(adminToken))
+        .send({ ...validVehicle, price: 'abc' })
+        .expect(400);
+
+      expect(priceResponse.body.success).toBe(false);
+      expect(priceResponse.body.message).toMatch(/numbers only/i);
+
+      const quantityResponse = await request(app)
+        .post('/api/vehicles')
+        .set(authHeader(adminToken))
+        .send({ ...validVehicle, quantity: 2.5 })
+        .expect(400);
+
+      expect(quantityResponse.body.success).toBe(false);
+      expect(quantityResponse.body.message).toMatch(/whole number/i);
+    });
   });
 
   describe('GET /api/vehicles', () => {
@@ -198,7 +229,7 @@ describe('Vehicle CRUD APIs', () => {
       });
       await Vehicle.create({
         make: 'Ford',
-        model: 'F-150',
+        model: 'Ranger',
         category: 'Truck',
         price: 45000,
         quantity: 2,
@@ -258,6 +289,28 @@ describe('Vehicle CRUD APIs', () => {
         .expect(200);
 
       expect(response.body.data.vehicles).toHaveLength(0);
+    });
+
+    it('should reject negative min or max price', async () => {
+      const response = await request(app)
+        .get('/api/vehicles/search')
+        .query({ minPrice: -1000 })
+        .set(authHeader(userToken))
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toMatch(/cannot be negative/i);
+    });
+
+    it('should reject when min price is greater than max price', async () => {
+      const response = await request(app)
+        .get('/api/vehicles/search')
+        .query({ minPrice: 50000, maxPrice: 20000 })
+        .set(authHeader(userToken))
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toMatch(/min price must be less than/i);
     });
   });
 });

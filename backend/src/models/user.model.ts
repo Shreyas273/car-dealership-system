@@ -16,6 +16,7 @@ const userSchema = new Schema<IUserDocument>(
       type: String,
       required: [true, 'Name is required'],
       trim: true,
+      match: [/^[A-Za-z\s'-]+$/, 'Name must contain letters only'],
     },
     email: {
       type: String,

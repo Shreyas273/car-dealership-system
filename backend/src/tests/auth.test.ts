@@ -62,6 +62,16 @@ describe('POST /api/auth/register', () => {
     expect(response.body.success).toBe(false);
     expect(response.body.message).toMatch(/at least 6 characters/i);
   });
+
+  it('should reject names containing numbers', async () => {
+    const response = await request(app)
+      .post('/api/auth/register')
+      .send({ ...validUser, name: 'Jane123' })
+      .expect(400);
+
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toMatch(/letters only/i);
+  });
 });
 
 describe('POST /api/auth/login', () => {
