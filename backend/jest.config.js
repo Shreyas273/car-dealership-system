@@ -7,6 +7,7 @@ module.exports = {
   setupFiles: ['<rootDir>/src/tests/jest.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/src/tests/jest.setup.afterEnv.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
+  maxWorkers: 1,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/server.ts',
