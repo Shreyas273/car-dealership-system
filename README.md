@@ -10,7 +10,7 @@ A full-stack car dealership inventory management application built with the MERN
 
 | Service | Platform | URL |
 |---------|----------|-----|
-| Frontend | Vercel | _Add your Vercel URL after deploy_ |
+| Frontend | Vercel | [car-dealership-system-five.vercel.app](https://car-dealership-system-five.vercel.app) |
 | Backend API | Render | [car-dealership-system-glyv.onrender.com](https://car-dealership-system-glyv.onrender.com) |
 | Database | MongoDB Atlas | `test` database (`users`, `vehicles` collections) |
 
@@ -232,7 +232,7 @@ User data appears in Atlas under **`test` → `users`**, not the default `sample
 | `MONGODB_URI` | Atlas connection string with `/test` |
 | `JWT_SECRET` | Strong random secret |
 | `JWT_EXPIRES_IN` | `7d` |
-| `FRONTEND_URL` | `https://your-app.vercel.app` |
+| `FRONTEND_URL` | `https://car-dealership-system-five.vercel.app` |
 
 4. Deploy and copy your Render URL (e.g. `https://car-dealership-system-glyv.onrender.com`)
 
@@ -262,13 +262,13 @@ User data appears in Atlas under **`test` → `users`**, not the default `sample
 Go back to Render → **Environment** and set `FRONTEND_URL` to your **exact** Vercel URL:
 
 ```
-https://your-exact-app.vercel.app
+https://car-dealership-system-five.vercel.app
 ```
 
 For local + production access, use comma-separated origins:
 
 ```
-http://localhost:5173,http://localhost:5174,https://your-exact-app.vercel.app
+http://localhost:5173,http://localhost:5174,https://car-dealership-system-five.vercel.app
 ```
 
 Save and **Manual Deploy** the backend again.
