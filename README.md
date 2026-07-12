@@ -10,9 +10,11 @@ A full-stack car dealership inventory management application built with the MERN
 
 | Service | Platform | URL |
 |---------|----------|-----|
-| Frontend | Vercel | _Deploy and add your URL here_ |
-| Backend API | Render | _Deploy and add your URL here_ |
-| Database | MongoDB Atlas | _Cloud-hosted MongoDB_ |
+| Frontend | Vercel | _Add your Vercel URL after deploy_ |
+| Backend API | Render | [car-dealership-system-glyv.onrender.com](https://car-dealership-system-glyv.onrender.com) |
+| Database | MongoDB Atlas | `test` database (`users`, `vehicles` collections) |
+
+**Health check:** [GET /api/health](https://car-dealership-system-glyv.onrender.com/api/health)
 
 ## Tech Stack
 
@@ -76,12 +78,14 @@ car-dealership-system/
 ### Prerequisites
 
 - Node.js 18+
-- MongoDB (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
+- MongoDB ([MongoDB Atlas](https://www.mongodb.com/atlas) recommended, or local MongoDB)
+
+> **Windows note:** If PowerShell blocks `npm`, use `cmd /c npm` instead (e.g. `cmd /c npm run dev`).
 
 ### 1. Clone and setup
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Shreyas273/car-dealership-system.git
 cd car-dealership-system
 ```
 
@@ -98,6 +102,12 @@ API runs at `http://localhost:5000`
 
 Health check: `GET /api/health`
 
+**Using MongoDB Atlas locally:** set `MONGODB_URI` in `backend/.env` to your Atlas connection string. Include the database name in the URI (this project uses the `test` database):
+
+```
+mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/test?retryWrites=true&w=majority
+```
+
 ### 3. Frontend
 
 ```bash
@@ -107,11 +117,19 @@ npm install
 npm run dev
 ```
 
-App runs at `http://localhost:5173` (proxies `/api` to backend)
+App runs at `http://localhost:5173` (Vite proxies `/api` to the backend).
+
+For local development, leave `VITE_API_URL` **empty** in `frontend/.env` so requests go through the Vite proxy and avoid CORS issues:
+
+```env
+VITE_API_URL=
+```
+
+If port 5173 is busy, Vite uses the next available port (e.g. `5174`). The backend allows both via `FRONTEND_URL`.
 
 ### 4. Create an admin user
 
-Register via the UI, then update role in MongoDB:
+Register via the UI, then update role in MongoDB Atlas (**`test` → `users`**) or local MongoDB:
 
 ```js
 db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
@@ -152,16 +170,16 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 |----------|-------------|---------|
 | `PORT` | Server port | `5000` |
 | `NODE_ENV` | Environment | `development` |
-| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://...` |
+| `MONGODB_URI` | MongoDB connection string (include database name) | `mongodb+srv://.../test?retryWrites=true&w=majority` |
 | `JWT_SECRET` | JWT signing secret | `your-secret-key` |
 | `JWT_EXPIRES_IN` | Token expiry | `7d` |
-| `FRONTEND_URL` | Allowed CORS origin | `http://localhost:5173` |
+| `FRONTEND_URL` | Allowed CORS origins (comma-separated) | `http://localhost:5173,http://localhost:5174` |
 
 ### Frontend (`frontend/.env`)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `VITE_API_URL` | Backend API URL | `http://localhost:5000` |
+| `VITE_API_URL` | Backend API URL. Leave **empty** for local dev (Vite proxy). Set to Render URL in production. | _(empty locally)_ or `https://car-dealership-system-glyv.onrender.com` |
 
 ---
 
@@ -172,7 +190,13 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 1. Create a free cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
 2. Create a database user with read/write access
 3. Whitelist IP `0.0.0.0/0` (allow from anywhere) for cloud hosting
-4. Copy the connection string → use as `MONGODB_URI`
+4. Copy the connection string and **append the database name** `test`:
+
+```
+mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/test?retryWrites=true&w=majority
+```
+
+User data appears in Atlas under **`test` → `users`**, not the default `sample_mflix` database.
 
 ### Step 2: Backend on Render
 
@@ -182,60 +206,94 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 2. Go to [render.com](https://render.com) → **New** → **Blueprint**
 3. Connect your repo — Render reads `render.yaml` automatically
 4. Set these env vars manually in the dashboard:
-   - `MONGODB_URI` — your Atlas connection string
+   - `MONGODB_URI` — Atlas connection string with `/test`
+   - `JWT_SECRET` — strong random secret (do not reuse the dev value)
    - `FRONTEND_URL` — your Vercel URL (set after Step 3)
 
 **Option B — Manual**
 
 1. **New** → **Web Service** → connect repo
 2. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install && npm run build`
-   - **Start Command:** `npm start`
-   - **Health Check Path:** `/api/health`
+
+| Setting | Value |
+|---------|-------|
+| **Root Directory** | `backend` |
+| **Build Command** | `npm install --include=dev && npm run build` |
+| **Start Command** | `npm start` |
+| **Health Check Path** | `/api/health` |
+
+> Use **npm**, not yarn. This project does not use yarn.
+
 3. Add environment variables:
 
 | Key | Value |
 |-----|-------|
 | `NODE_ENV` | `production` |
-| `MONGODB_URI` | Atlas connection string |
+| `MONGODB_URI` | Atlas connection string with `/test` |
 | `JWT_SECRET` | Strong random secret |
 | `JWT_EXPIRES_IN` | `7d` |
 | `FRONTEND_URL` | `https://your-app.vercel.app` |
 
-4. Deploy and copy your Render URL (e.g. `https://car-dealership-api.onrender.com`)
+4. Deploy and copy your Render URL (e.g. `https://car-dealership-system-glyv.onrender.com`)
 
 ### Step 3: Frontend on Vercel
 
 1. Go to [vercel.com](https://vercel.com) → **Add New Project**
 2. Import your GitHub repo
 3. Configure:
-   - **Root Directory:** `frontend`
-   - **Framework Preset:** Vite
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
+
+| Setting | Value |
+|---------|-------|
+| **Root Directory** | `frontend` |
+| **Framework Preset** | Vite |
+| **Build Command** | `npm run build` |
+| **Output Directory** | `dist` |
+
 4. Add environment variable:
 
 | Key | Value |
 |-----|-------|
-| `VITE_API_URL` | `https://your-render-app.onrender.com` |
+| `VITE_API_URL` | `https://car-dealership-system-glyv.onrender.com` |
 
 5. Deploy and copy your Vercel URL
 
 ### Step 4: Finalize CORS
 
-Go back to Render and update `FRONTEND_URL` to your exact Vercel URL, then redeploy the backend.
+Go back to Render → **Environment** and set `FRONTEND_URL` to your **exact** Vercel URL:
+
+```
+https://your-exact-app.vercel.app
+```
+
+For local + production access, use comma-separated origins:
+
+```
+http://localhost:5173,http://localhost:5174,https://your-exact-app.vercel.app
+```
+
+Save and **Manual Deploy** the backend again.
 
 ### Verify deployment
 
 ```bash
-curl https://your-render-app.onrender.com/api/health
+curl https://car-dealership-system-glyv.onrender.com/api/health
 ```
 
 Expected response:
 ```json
 { "success": true, "message": "Car Dealership API is running" }
 ```
+
+### Troubleshooting
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| CORS error on login | `FRONTEND_URL` on Render does not match Vercel URL | Set exact Vercel URL on Render, redeploy backend |
+| 401 on login (local) | Account exists in a different database | Register locally, or point `MONGODB_URI` to Atlas `/test` |
+| Users not in Atlas | Looking at wrong database, or backend still on local MongoDB | Check `test` → `users`; restart backend after `.env` change |
+| API calls go to localhost in production | `VITE_API_URL` not set on Vercel | Set to Render URL, redeploy frontend |
+| Render first request slow | Free tier sleeps after inactivity | Wait ~30s for cold start |
+| PowerShell blocks npm | Execution policy | Use `cmd /c npm run dev` |
 
 ---
 
@@ -247,6 +305,8 @@ Run the backend test suite:
 cd backend
 npm test
 ```
+
+Tests use an isolated local database (`car-dealership-test`) and a dedicated JWT secret — they do not touch your Atlas production data. Jest runs serially (`maxWorkers: 1`) to avoid parallel test suites wiping shared data.
 
 Run with coverage:
 
@@ -323,7 +383,7 @@ Tests:       38 passed, 38 total
 | Phase 2 | Wrote auth test suite first, then generated User model, AuthService, JWT middleware | Reviewed test cases, validated security patterns |
 | Phase 3 | Wrote vehicle/inventory tests, implemented CRUD + search + purchase/restock APIs | Fixed Mongoose `model` field conflict, parallel test isolation |
 | Phase 5 | Scaffolded React app, built all pages, components, routing, and Context API auth | Reviewed UX flow, verified purchase disabled when stock is 0 |
-| Phase 6 | Created Render/Vercel configs, deployment docs, test report, this AI usage section | Will deploy manually and add live URLs + screenshots |
+| Phase 6 | Created Render/Vercel configs, deployment docs, test report, this AI usage section | Deployed backend to Render; configured Atlas `test` database; fixed local dev CORS/proxy and test isolation |
 
 ### Example AI-assisted workflow (TDD)
 
